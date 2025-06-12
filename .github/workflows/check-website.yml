@@ -24,6 +24,7 @@ jobs:
 
       - name: Run Script
         env:
+          JOB_ID: ${{secrets.JOB_ID}}
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
