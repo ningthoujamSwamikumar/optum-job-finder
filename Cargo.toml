@@ -1,0 +1,10 @@
+[package]
+name = "optum-job-finder"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+reqwest = { version = "0.11", features = ["blocking"] }
+scraper = "0.17"  # Helps with HTML parsing
+lettre = "0.10"  # Email handling
+tokio = { version = "1", features = ["full"] }  # Async runtime
