@@ -5,7 +5,7 @@ on:
     branches: 
       - main
   schedule:
-    -cron: "0 9,21 * * *" #Runs at 9 AM & 9 PM UTC
+    - cron: "0 9,21 * * *" #Runs at 9 AM & 9 PM UTC
 
 jobs:
   check_site:
