@@ -1,0 +1,27 @@
+name: Check Website and Send Email
+
+on:
+  schedule:
+    -cron: "0 9,21 * * *" #Runs at 9 AM & 9 PM UTC
+
+jobs:
+  check_site:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Set Up Rust
+        uses: actions/setup-rust@v1
+        with:
+          rust-version: stable
+      
+      - name: Install Dependencies
+        run: cargo add reqwest scraper lettre tokio
+      
+      - name: Run Script
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER}}
+          EMAIL_PASSOWRD: ${{ secrets.EMAIL_PASSWORD}}
+          EMAIL_RECEIVER: ${{secrets.EMAIL_RECEIVER}}
+        run: cargo run --bin check_website
