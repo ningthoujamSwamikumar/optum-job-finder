@@ -4,10 +4,6 @@ use reqwest::blocking::get;
 use scraper::{Html, Selector};
 use std::env;
 
-const URL: &str = "https://careers.unitedhealthgroup.com/job-search-results/?ref=21995521";
-const ELEMENT_ID: &str = "widget-jobsearch-results-list";
-const CHILD_CLASS: &str = "jobid-21995521";
-
 fn main() {
     println!("Welcome to optum Job Finder!");
     match check_website() {
@@ -20,14 +16,25 @@ fn main() {
 }
 
 fn check_website() -> Option<String> {
-    let response = get(URL).ok()?.text().ok()?;
+    let job_id = match env::var("JOB_ID") {
+        Ok(val) => val,
+        Err(_) => env::args().nth(1).expect("Missing JOB_ID"),
+    };
+
+    let url = format!("https://careers.unitedhealthgroup.com/job-search-results/?ref={job_id}");
+    let parent_id = "widget-jobsearch-results-list";
+    let child_class = "job";
+
+    println!("finding - parent_id: {parent_id}, child_class: '{child_class}' at page: {url}");
+
+    let response = get(url).ok()?.text().ok()?;
     let document = Html::parse_document(&response);
 
-    let parent_selector = Selector::parse(&format!("#{}", ELEMENT_ID)).ok()?;
-    let child_selector = Selector::parse(&format!(".{}", CHILD_CLASS)).ok()?;
+    let parent_selector = Selector::parse(&format!("#{}", parent_id)).ok()?;
+    let child_selector = Selector::parse(&format!(".{}", child_class)).ok()?;
 
     document.select(&parent_selector).find_map(|parent| {
-        parent
+            parent
             .select(&child_selector)
             .next()
             .map(|child| child.text().collect())
@@ -35,9 +42,18 @@ fn check_website() -> Option<String> {
 }
 
 fn send_email(content: &str) {
-    let email_sender = env::var("EMAIL_SENDER").expect("Missing EMAIL_SENDER");
-    let email_password = env::var("EMAIL_PASSWORD").expect("Missing EMAIL_PASSWORD");
-    let email_receiver = env::var("EMAIL_RECEIVER").expect("Missing EMAIL_RECEIVER");
+    let email_sender = match env::var("EMAIL_SENDER") {
+        Ok(val) => val,
+        Err(_) => env::args().nth(2).expect("Missing EMAIL_SENDER"),
+    };
+    let email_password = match env::var("EMAIL_PASSWORD") {
+        Ok(val) => val,
+        Err(_) => env::args().nth(3).expect("Missing EMAIL_PASSWORD"),
+    };
+    let email_receiver = match env::var("EMAIL_RECEIVER") {
+        Ok(val) => val,
+        Err(_) => env::args().nth(4).expect("Missing EMAIL_RECEIVER"),
+    };
 
     let email = Message::builder()
         .from(email_sender.parse().unwrap())
